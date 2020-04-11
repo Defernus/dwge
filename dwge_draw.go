@@ -2,20 +2,41 @@ package dwge
 
 import (
 	"fmt"
+	"syscall/js"
 )
 
-func SetFillColor(r, g, b float64) {
-	ctx.Set("fillStyle", fmt.Sprintf("rgb(%v, %v, %v)", int(r*255), int(g*255), int(b*255)))
+type Image struct {
+	canvas, ctx js.Value
+	w, h        int
 }
 
-func drawRect(x, y, w, h int) {
-	ctx.Call("fillRect", x, canvas.Get("height").Int() - y - h, w, h)
+func NewImage(w, h int) *Image {
+	img := &Image{}
+	img.w = w
+	img.h = h
+	img.canvas = document.Call("createElement", "canvas")
+	img.canvas.Set("width", w)
+	img.canvas.Set("height", h)
+	img.ctx = img.canvas.Call("getContext", "2d")
+	return img
 }
 
-func SetFontSize(px uint8) {
-	ctx.Set("font", fmt.Sprintf("%vpx Verdana", px))
+func (img *Image) Clear() {
+	img.DrawRect(0, 0, img.w, img.h)
 }
 
-func drawText(text string, x, y int) {
-	ctx.Call("fillText", text, x, canvas.Get("height").Int() - y)
+func (img *Image) SetFillColor(r, g, b float64) {
+	img.ctx.Set("fillStyle", fmt.Sprintf("rgb(%v, %v, %v)", int(r*255), int(g*255), int(b*255)))
+}
+
+func (img *Image) DrawRect(x, y, w, h int) {
+	img.ctx.Call("fillRect", x, img.h-y-h, w, h)
+}
+
+func (img *Image) SetFontSize(px uint8) {
+	img.ctx.Set("font", fmt.Sprintf("%vpx Verdana", px))
+}
+
+func (img *Image) DrawText(text string, x, y int) {
+	img.ctx.Call("fillText", text, x, img.h-y)
 }

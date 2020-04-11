@@ -5,21 +5,19 @@ import (
 )
 
 type Canvas struct {
-	x, y int
-	w, h int
+	x, y   int
+	w, h   int
+	img    *Image
 	parent GuiElement
 }
 
-func (c *Canvas) GetParent() GuiElement {
-	return c.parent
-}
-
 func NewCanvas(x, y, w, h int, parent GuiContainer) (*Canvas, error) {
-	c := &Canvas {
-		x: x,
-		y: y,
-		w: w,
-		h: h,
+	c := &Canvas{
+		x:   x,
+		y:   y,
+		w:   w,
+		h:   h,
+		img: NewImage(w, h),
 	}
 
 	if _, err := parent.AddElement(c); err != nil {
@@ -27,6 +25,10 @@ func NewCanvas(x, y, w, h int, parent GuiContainer) (*Canvas, error) {
 	}
 
 	return c, nil
+}
+
+func (c *Canvas) GetParent() GuiElement {
+	return c.parent
 }
 
 func (c *Canvas) setParent(parent GuiElement) error {
@@ -50,31 +52,20 @@ func (c *Canvas) GetAbsolutePosition() (int, int) {
 		return c.x, c.y
 	}
 	px, py := c.parent.GetAbsolutePosition()
-	return c.x+px, c.y+py
+	return c.x + px, c.y + py
 }
 func (c *Canvas) GetSize() (int, int) {
 	return c.w, c.h
 }
 
 func (c *Canvas) draw() error {
-	//TODO make real draw here
+	screen.ctx.Call("drawImage", c.img.canvas, 0, 0)
 	return nil
 }
 
-func (c *Canvas) Clear() {
-	c.DrawRect(0, 0, c.w, c.h)
-}
-
-func (c *Canvas) DrawRect(x, y, w, h int) {
-	//TODO move real draw calls to draw()
-
-	px, py := c.GetAbsolutePosition()
-	drawRect(px + x, py + y, w, h)
-}
-
-func (c *Canvas) DrawText(text string, x, y int) {
-	//TODO move real draw calls to draw()
-
-	px, py := c.GetAbsolutePosition()
-	drawText(text, px + x, py + y)
+func (c *Canvas) GetImage() (*Image, error) {
+	if c.img == nil {
+		return nil, fmt.Errorf("image is not set, try to use NewCanvas")
+	}
+	return c.img, nil
 }
