@@ -59,7 +59,7 @@ func (c *Canvas) GetSize() (int, int) {
 }
 
 func (c *Canvas) draw() error {
-	screen.ctx.Call("drawImage", c.img.canvas, 0, 0)
+	screen.DrawImageAt(c.img, c.x, c.y)
 	return nil
 }
 

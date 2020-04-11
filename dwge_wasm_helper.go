@@ -2,6 +2,7 @@ package dwge
 
 import (
 	"syscall/js"
+	"fmt"
 )
 
 var (
@@ -25,6 +26,7 @@ func initWH(width, height int) {
 	screen.h = height
 
 	screen.ctx = screen.canvas.Call("getContext", "2d")
+	screen.ctx.Set("imageSmoothingEnabled", false)
 }
 
 func startLoop(f func() error) {
@@ -32,6 +34,7 @@ func startLoop(f func() error) {
 	js_f = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		if err := f(); err != nil {
 			//TODO handle loop error
+			fmt.Printf("loop error: %s\n", err)
 		}
 		js.Global().Call("requestAnimationFrame", js_f)
 		return nil

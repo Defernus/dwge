@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/Defernus/dwge"
-	"math"
 	"math/rand"
 )
 
@@ -17,6 +16,8 @@ var (
 	pipes            [4]float64
 	high_score       = 0
 	last_pipe, score int
+
+	texture *dwge.Image
 )
 
 func onKeyPress(key string) {
@@ -57,6 +58,10 @@ func create(win dwge.GuiElement) error {
 		return err
 	}
 
+	if texture, err = dwge.LoadImage("flappy.png"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -89,9 +94,8 @@ func loop(win dwge.GuiElement) error {
 	screen.SetFillColor(.6, .9, 1)
 	screen.Clear()
 
-	screen.SetFillColor(math.Sin(timer)*.5+.5, math.Sin(timer*1.2356)*.5+.5, math.Sin(timer*.7453)*.5+.5)
 	pixel_size := w * size
-	screen.DrawRect(int(w*x-pixel_size/2), int(y*h-pixel_size/2), int(pixel_size), int(pixel_size))
+	screen.DrawRotatedScaledImageAt(texture, int(w*x), int(y*h), int(pixel_size), int(pixel_size), .5, .5, vy)
 
 	screen.SetFillColor(0, .8, 0)
 	for i := range pipes {
