@@ -20,7 +20,7 @@ func NewCanvas(x, y, w, h int, parent GuiContainer) (*Canvas, error) {
 		img: NewImage(w, h),
 	}
 
-	if _, err := parent.AddElement(c); err != nil {
+	if err := parent.AddElement(c); err != nil {
 		return nil, err
 	}
 

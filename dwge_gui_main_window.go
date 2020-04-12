@@ -2,72 +2,115 @@ package dwge
 
 import (
 	"fmt"
+	"sync"
 )
 
-type mainWindow struct {
-	last_id  int
-	elements map[int]GuiElement
+type MainWindow struct {
+	mx             sync.Mutex
+	selected_scene int
+	scenes         [][]GuiElement
 }
 
-func newMainWindow() *mainWindow {
-	return &mainWindow{
-		last_id:  0,
-		elements: make(map[int]GuiElement),
+func newMainWindow() *MainWindow {
+	return &MainWindow{
+		scenes: [][]GuiElement{make([]GuiElement, 0)},
 	}
 }
 
-func (mwin *mainWindow) draw() error {
-	for i := range mwin.elements {
-		if err := mwin.elements[i].draw(); err != nil {
+func (mwin *MainWindow) GetCurentSceneId() int {
+	return mwin.selected_scene
+}
+
+func (mwin *MainWindow) CreateNewScene() int {
+	mwin.scenes = append(mwin.scenes, make([]GuiElement, 0))
+	return len(mwin.scenes) - 1
+}
+
+//TODO fix bug when scene changed while passing throw the element of scene
+func (mwin *MainWindow) SetScene(id int) {
+	for i := 0; i != 5; i++ {
+		mwin.mouseButtonUpEvent(mouse_x, mouse_y, i)
+	}
+	mwin.selected_scene = id
+}
+
+func (mwin *MainWindow) draw() error {
+	for i := range mwin.scenes[mwin.selected_scene] {
+		if err := mwin.scenes[mwin.selected_scene][i].draw(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (mwin *mainWindow) GetParent() GuiElement {
+func (mwin *MainWindow) mouseButtonDownEvent(x, y, button int) bool {
+	fmt.Println(button)
+	for _, v := range mwin.scenes[mwin.selected_scene] {
+		switch v.(type) {
+		case GuiClickable:
+			if v.(GuiClickable).mouseButtonDownEvent(x, y, button) {
+				return true
+			}
+		}
+	}
+	return true
+}
+
+func (mwin *MainWindow) mouseButtonUpEvent(x, y, button int) {
+	for _, v := range mwin.scenes[mwin.selected_scene] {
+		switch v.(type) {
+		case GuiClickable:
+			v.(GuiClickable).mouseButtonUpEvent(x, y, button)
+		}
+	}
+}
+
+func (mwin *MainWindow) GetParent() GuiElement {
 	return nil
 }
 
-func (mwin *mainWindow) setParent(parent GuiElement) error {
+func (mwin *MainWindow) setParent(parent GuiElement) error {
 	return fmt.Errorf("can not set parent to mainWindow")
 }
 
-func (mwin *mainWindow) clearParent() {}
+func (mwin *MainWindow) clearParent() {}
 
-func (mwin *mainWindow) GetRelativePosition() (int, int) {
+func (mwin *MainWindow) GetRelativePosition() (int, int) {
 	return 0, 0
 }
 
-func (mwin *mainWindow) GetAbsolutePosition() (int, int) {
+func (mwin *MainWindow) GetAbsolutePosition() (int, int) {
 	return 0, 0
 }
 
-func (mwin *mainWindow) GetSize() (int, int) {
+func (mwin *MainWindow) GetSize() (int, int) {
 	return screen.w, screen.h
 }
 
-func (mwin *mainWindow) AddElement(element GuiElement) (int, error) {
+func (mwin *MainWindow) AddElement(element GuiElement) error {
 	if err := element.setParent(mwin); err != nil {
-		return -1, err
+		return err
 	}
-	mwin.elements[mwin.last_id] = element
-	mwin.last_id++
-	return mwin.last_id - 1, nil
+	mwin.scenes[mwin.selected_scene] = append(mwin.scenes[mwin.selected_scene], element)
+	return nil
 }
 
-func (mwin *mainWindow) GetElement(relative_id int) (GuiElement, error) {
-	if el, exist := mwin.elements[relative_id]; exist {
-		return el, nil
+func (mwin *MainWindow) RemoveElement(element GuiElement) error {
+	for i, v := range mwin.scenes[mwin.selected_scene] {
+		if v == element {
+			if i == 0 {
+				mwin.scenes[mwin.selected_scene] = mwin.scenes[mwin.selected_scene][1:]
+			} else if i == len(mwin.scenes[mwin.selected_scene])-1 {
+				mwin.scenes[mwin.selected_scene] = mwin.scenes[mwin.selected_scene][:len(mwin.scenes[mwin.selected_scene])-1]
+			} else if i > len(mwin.scenes[mwin.selected_scene])/2 {
+				copy(mwin.scenes[mwin.selected_scene][i:], mwin.scenes[mwin.selected_scene][i+1:])
+				mwin.scenes[mwin.selected_scene] = mwin.scenes[mwin.selected_scene][:len(mwin.scenes[mwin.selected_scene])-1]
+			} else {
+				copy(mwin.scenes[mwin.selected_scene][1:i+1], mwin.scenes[mwin.selected_scene][0:i])
+				mwin.scenes[mwin.selected_scene] = mwin.scenes[mwin.selected_scene][1:]
+			}
+			return nil
+		}
 	}
-	return nil, fmt.Errorf("could not find element with id %v", relative_id)
-}
-
-func (mwin *mainWindow) PopElement(relative_id int) (GuiElement, error) {
-	if el, exist := mwin.elements[relative_id]; exist {
-		el.clearParent()
-		delete(mwin.elements, relative_id)
-		return el, nil
-	}
-	return nil, fmt.Errorf("could not find element with id %v", relative_id)
+	return fmt.Errorf("could not find element")
 }

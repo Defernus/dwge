@@ -12,8 +12,15 @@ type GuiElement interface {
 	draw() error
 }
 
+type GuiClickable interface {
+	mouseButtonDownEvent(x, y, button int) bool
+	mouseButtonUpEvent(x, y, button int)
+}
+
 type GuiContainer interface {
-	AddElement(element GuiElement) (relative_id int, err error)
-	GetElement(relative_id int) (element GuiElement, err error)
-	PopElement(relative_id int) (element GuiElement, err error)
+	AddElement(element GuiElement) error
+	RemoveElement(element GuiElement) error
+
+	mouseButtonDownEvent(x, y, button int) bool
+	mouseButtonUpEvent(x, y, button int)
 }

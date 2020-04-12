@@ -90,8 +90,8 @@ func (img *Image) DrawScaledPartOfImageAt(image *Image, sx, sy, sw, sh, dx, dy, 
 }
 
 func (img *Image) DrawRotatedScaledImageAt(image *Image, dx, dy, dw, dh int, cx, cy, angle float64) {
-	dy = img.h-dy
-	cy = 1-cy
+	dy = img.h - dy
+	cy = 1 - cy
 
 	img.ctx.Call("translate", float64(dx), float64(dy))
 	img.ctx.Call("rotate", -angle)
@@ -103,9 +103,9 @@ func (img *Image) DrawRotatedScaledImageAt(image *Image, dx, dy, dw, dh int, cx,
 }
 
 func (img *Image) DrawRotatedScaledPartOfImageAt(image *Image, sx, sy, sw, sh, dx, dy, dw, dh int, cx, cy, angle float64) {
-	sy = image.h-sy-sh
-	dy = img.h-dy
-	cy = 1-cy
+	sy = image.h - sy - sh
+	dy = img.h - dy
+	cy = 1 - cy
 
 	img.ctx.Call("translate", float64(dx), float64(dy))
 	img.ctx.Call("rotate", -angle)

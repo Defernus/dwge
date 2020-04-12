@@ -4,7 +4,18 @@ import (
 	"syscall/js"
 )
 
+const (
+	MOUSE_BUTTON_LEFT    = 0
+	MOUSE_BUTTON_WHEEL   = 1
+	MOUSE_BUTTON_RIGHT   = 2
+	MOUSE_BUTTON_BACK    = 3
+	MOUSE_BUTTON_FORWARD = 4
+)
+
 var (
+	mouse_x int
+	mouse_y int
+
 	key_down_event    func(string)
 	js_key_down_event js.Func
 
@@ -41,25 +52,25 @@ func initEvents() {
 	document.Call("addEventListener", "keyup", js_key_down_event)
 
 	js_rmb_click_event = js.FuncOf(rmbClickEvent)
-	document.Call("addEventListener", "click", js_rmb_click_event)
+	screen.canvas.Call("addEventListener", "click", js_rmb_click_event)
 
 	js_lmb_click_event = js.FuncOf(lmbClickEvent)
-	document.Call("addEventListener", "contextmenu", js_lmb_click_event)
+	screen.canvas.Call("addEventListener", "contextmenu", js_lmb_click_event)
 
 	js_mouseover_event = js.FuncOf(mouseoverEvent)
-	document.Call("addEventListener", " mouseover", js_mouseover_event)
+	screen.canvas.Call("addEventListener", "mouseover", js_mouseover_event)
 
 	js_mouseout_event = js.FuncOf(mouseoutEvent)
-	document.Call("addEventListener", " mouseout", js_mouseout_event)
+	screen.canvas.Call("addEventListener", "mouseout", js_mouseout_event)
 
 	js_mousedown_event = js.FuncOf(mousedownEvent)
-	document.Call("addEventListener", " mousedown", js_mousedown_event)
+	screen.canvas.Call("addEventListener", "mousedown", js_mousedown_event)
 
 	js_mouseup_event = js.FuncOf(mouseupEvent)
-	document.Call("addEventListener", " mouseup", js_mouseup_event)
+	screen.canvas.Call("addEventListener", "mouseup", js_mouseup_event)
 
 	js_mousemove_event = js.FuncOf(mousemoveEvent)
-	document.Call("addEventListener", " mousemove", js_mousemove_event)
+	screen.canvas.Call("addEventListener", "mousemove", js_mousemove_event)
 }
 
 func keyDownEvent(this js.Value, args []js.Value) interface{} {
@@ -85,50 +96,57 @@ func SetKeyUpEvent(f func(key string)) {
 }
 
 func lmbClickEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if lmb_click_event != nil {
-		lmb_click_event(args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int())
+		lmb_click_event(mouse_x, mouse_y)
 	}
 	return nil
 }
 
 func rmbClickEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if rmb_click_event != nil {
-		rmb_click_event(args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int())
+		rmb_click_event(mouse_x, mouse_y)
 	}
 	return nil
 }
 
 func mouseoverEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mouseover_event != nil {
-		mouseover_event(args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int())
+		mouseover_event(mouse_x, mouse_y)
 	}
 	return nil
 }
 
 func mouseoutEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mouseout_event != nil {
-		mouseout_event(args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int())
+		mouseout_event(mouse_x, mouse_y)
 	}
 	return nil
 }
 
 func mousedownEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mousedown_event != nil {
-		mousedown_event(args[0].Get("button").Int(), args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int())
+		mousedown_event(args[0].Get("button").Int(), mouse_x, mouse_y)
 	}
 	return nil
 }
 
 func mouseupEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mouseup_event != nil {
-		mouseup_event(args[0].Get("button").Int(), args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int())
+		mouseup_event(args[0].Get("button").Int(), mouse_x, mouse_y)
 	}
 	return nil
 }
 
 func mousemoveEvent(this js.Value, args []js.Value) interface{} {
+	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mousemove_event != nil {
-		mousemove_event(args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int(), args[0].Get("movementX").Int(), args[0].Get("movementY").Int())
+		mousemove_event(mouse_x, mouse_y, args[0].Get("movementX").Int(), args[0].Get("movementY").Int())
 	}
 	return nil
 }

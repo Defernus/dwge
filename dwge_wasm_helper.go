@@ -1,8 +1,8 @@
 package dwge
 
 import (
-	"syscall/js"
 	"fmt"
+	"syscall/js"
 )
 
 var (
