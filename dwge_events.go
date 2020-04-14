@@ -74,8 +74,14 @@ func initEvents() {
 }
 
 func keyDownEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	if key_down_event != nil {
 		key_down_event(args[0].Get("key").String())
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
@@ -85,8 +91,14 @@ func SetKeyDownEvent(f func(key string)) {
 }
 
 func keyUpEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	if key_up_event != nil {
 		key_up_event(args[0].Get("key").String())
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
@@ -96,57 +108,99 @@ func SetKeyUpEvent(f func(key string)) {
 }
 
 func lmbClickEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if lmb_click_event != nil {
 		lmb_click_event(mouse_x, mouse_y)
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
 
 func rmbClickEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if rmb_click_event != nil {
 		rmb_click_event(mouse_x, mouse_y)
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
 
 func mouseoverEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mouseover_event != nil {
 		mouseover_event(mouse_x, mouse_y)
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
 
 func mouseoutEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mouseout_event != nil {
 		mouseout_event(mouse_x, mouse_y)
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
 
 func mousedownEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mousedown_event != nil {
 		mousedown_event(args[0].Get("button").Int(), mouse_x, mouse_y)
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
 
 func mouseupEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mouseup_event != nil {
 		mouseup_event(args[0].Get("button").Int(), mouse_x, mouse_y)
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
 
 func mousemoveEvent(this js.Value, args []js.Value) interface{} {
+	if is_cocnurrency_safe {
+		main_mutex.Lock()
+	}
 	mouse_x, mouse_y = args[0].Get("offsetX").Int(), args[0].Get("offsetY").Int()
 	if mousemove_event != nil {
 		mousemove_event(mouse_x, mouse_y, args[0].Get("movementX").Int(), args[0].Get("movementY").Int())
+	}
+	if is_cocnurrency_safe {
+		defer main_mutex.Unlock()
 	}
 	return nil
 }
@@ -154,4 +208,11 @@ func mousemoveEvent(this js.Value, args []js.Value) interface{} {
 func clearEventsListeners() {
 	js_key_down_event.Release()
 	js_key_up_event.Release()
+	js_lmb_click_event.Release()
+	js_rmb_click_event.Release()
+	js_mouseover_event.Release()
+	js_mouseout_event.Release()
+	js_mousedown_event.Release()
+	js_mouseup_event.Release()
+	js_mousemove_event.Release()
 }

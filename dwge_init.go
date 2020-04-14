@@ -1,16 +1,22 @@
 package dwge
 
 import (
+	"sync"
 	"time"
 )
 
 var (
+	main_mutex sync.Mutex
 	screen *Image
+	is_cocnurrency_safe = true
 )
 
 func getMainLoop(loop func(*MainWindow) error, mwin *MainWindow) func() error {
 	last_time := time.Now()
 	return func() error {
+		if is_cocnurrency_safe {
+			main_mutex.Lock()
+		}
 		now := time.Now()
 		delta_time = float64((now.UnixNano()-last_time.UnixNano())/1000000) / 1000.
 		last_time = now
@@ -22,8 +28,20 @@ func getMainLoop(loop func(*MainWindow) error, mwin *MainWindow) func() error {
 		screen.SetFillColor(0, 0, 0)
 		screen.Clear()
 		mwin.draw()
+
+		if is_cocnurrency_safe {
+			defer main_mutex.Unlock()
+		}
 		return nil
 	}
+}
+
+func GetIsConcurrencySafe() bool {
+	return is_cocnurrency_safe
+}
+
+func IsConcurencySafe(val bool) {
+	is_cocnurrency_safe = true
 }
 
 //Init starts main loop

@@ -7,28 +7,30 @@ import (
 )
 
 var (
-	menu_screen   *dwge.Image
-	game_screen   *dwge.Image
-	menu_scene_id int
-	game_scene_id int
-	mwin          *dwge.MainWindow
-	y, vy, timer  float64
-	size          = 0.1
-	x             = 0.2
+	menu_screen      *dwge.Image
+	game_screen      *dwge.Image
+	menu_scene_id    int
+	game_scene_id    int
+	current_scene_id int
+	y, vy, timer     float64
+	size             = 0.1
+	x                = 0.2
 
 	pipes            [4]float64
 	high_score       = 0
 	last_pipe, score int
+
+	is_restart = false
 
 	texture *dwge.Image
 )
 
 func onKeyPress(key string) {
 	if key == " " {
-		if mwin.GetCurentSceneId() == game_scene_id {
+		if current_scene_id == game_scene_id {
 			vy = .65
 		} else {
-			mwin.SetScene(game_scene_id)
+			is_restart = true
 		}
 	}
 }
@@ -48,7 +50,6 @@ func resetGame() {
 }
 
 func create(win *dwge.MainWindow) error {
-	mwin = win
 	w, h := win.GetSize()
 	menu_scene_id = win.GetCurentSceneId()
 
@@ -122,6 +123,12 @@ func menuLoop(win *dwge.MainWindow) error {
 
 	pixel_size := w * size
 	menu_screen.DrawRotatedScaledImageAt(texture, int(w*x), int(y*h), int(pixel_size), int(pixel_size), .5, .5, vy)
+
+	if is_restart {
+		is_restart = false
+		win.SetScene(game_scene_id)
+		current_scene_id = game_scene_id
+	}
 	return nil
 }
 
@@ -137,6 +144,7 @@ func gameLoop(win *dwge.MainWindow) error {
 	if (y < size/2) || (y > 1-size/2) {
 		resetGame()
 		win.SetScene(menu_scene_id)
+		current_scene_id = menu_scene_id
 	}
 
 	lpx := 1 - timer/5 + float64(score)/2
@@ -144,6 +152,7 @@ func gameLoop(win *dwge.MainWindow) error {
 		resetGame()
 
 		win.SetScene(menu_scene_id)
+		current_scene_id = menu_scene_id
 	}
 
 	game_screen.SetFillColor(.6, .9, 1)
