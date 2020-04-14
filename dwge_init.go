@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	main_mutex sync.Mutex
-	screen *Image
+	main_mutex          sync.Mutex
+	screen              *Image
 	is_cocnurrency_safe = true
 )
 
@@ -51,8 +51,8 @@ func Init(create func(*MainWindow) error, loop func(*MainWindow) error, width, h
 	initWH(width, height)
 
 	mwin := newMainWindow()
-	mousedown_event = func(button, x, y int){mwin.mouseButtonDownEvent(x, y, button)}
-	mouseup_event = func(button, x, y int){mwin.mouseButtonUpEvent(x, y, button)}
+	mousedown_event = func(button, x, y int) { mwin.mouseButtonDownEvent(x, y, button) }
+	mouseup_event = func(button, x, y int) { mwin.mouseButtonUpEvent(x, y, button) }
 	initEvents()
 
 	if err := create(mwin); err != nil {

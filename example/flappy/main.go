@@ -26,6 +26,7 @@ var (
 )
 
 func onKeyPress(key string) {
+	fmt.Printf("key [%v], scene %v\n", key, current_scene_id)
 	if key == " " {
 		if current_scene_id == game_scene_id {
 			vy = .65

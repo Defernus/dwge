@@ -48,8 +48,8 @@ func initEvents() {
 	js_key_down_event = js.FuncOf(keyDownEvent)
 	document.Call("addEventListener", "keydown", js_key_down_event)
 
-	js_key_up_event = js.FuncOf(keyDownEvent)
-	document.Call("addEventListener", "keyup", js_key_down_event)
+	js_key_up_event = js.FuncOf(keyUpEvent)
+	document.Call("addEventListener", "keyup", js_key_up_event)
 
 	js_rmb_click_event = js.FuncOf(rmbClickEvent)
 	screen.canvas.Call("addEventListener", "click", js_rmb_click_event)
